@@ -19,6 +19,8 @@ val scGap : Float = 0.05f
 val scDiv : Double = 0.51
 val sizeFactor : Float = 2.6f
 val color : Int = Color.parseColor("#1abc9c")
+val delay : Long = 20
+val backColor : Int = Color.parseColor("#212121")
 
 fun Int.inverse() : Float = 1f / this
 fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n)
@@ -108,7 +110,7 @@ class TriangleBallsStepView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
@@ -205,7 +207,7 @@ class TriangleBallsStepView(ctx : Context) : View(ctx) {
         private var tbs : TriangleBallStep = TriangleBallStep(0)
 
         fun render(canvas : Canvas, paint : Paint) {
-            canvas.drawColor(Color.parseColor("#BDBDBD"))
+            canvas.drawColor(backColor)
             tbs.draw(canvas, paint)
             animator.animate {
                 tbs.update {i, scl ->
@@ -225,7 +227,7 @@ class TriangleBallsStepView(ctx : Context) : View(ctx) {
         fun create(activity : Activity) : TriangleBallsStepView {
             val view : TriangleBallsStepView = TriangleBallsStepView(activity)
             activity.setContentView(view)
-            return view 
+            return view
         }
     }
 }
