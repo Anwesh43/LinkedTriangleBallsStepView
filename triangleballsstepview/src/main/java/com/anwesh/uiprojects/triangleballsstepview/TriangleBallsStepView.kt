@@ -196,4 +196,26 @@ class TriangleBallsStepView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : TriangleBallsStepView) {
+
+        private val animator : Animator = Animator(view)
+        private var tbs : TriangleBallStep = TriangleBallStep(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(Color.parseColor("#BDBDBD"))
+            tbs.draw(canvas, paint)
+            animator.animate {
+                tbs.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            tbs.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
