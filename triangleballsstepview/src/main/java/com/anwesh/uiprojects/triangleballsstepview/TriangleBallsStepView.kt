@@ -220,4 +220,12 @@ class TriangleBallsStepView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    companion object {
+        fun create(activity : Activity) : TriangleBallsStepView {
+            val view : TriangleBallsStepView = TriangleBallsStepView(activity)
+            activity.setContentView(view)
+            return view 
+        }
+    }
 }
