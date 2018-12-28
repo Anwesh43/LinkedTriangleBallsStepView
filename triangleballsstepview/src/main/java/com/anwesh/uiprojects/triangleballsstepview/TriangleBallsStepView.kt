@@ -11,6 +11,7 @@ import android.graphics.Paint
 import android.graphics.Canvas
 import android.graphics.Color
 import android.app.Activity
+import android.util.Log
 
 val nodes : Int = 5
 val rows : Int = 4
@@ -23,7 +24,7 @@ val delay : Long = 20
 val backColor : Int = Color.parseColor("#212121")
 
 fun Int.inverse() : Float = 1f / this
-fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n)
+fun Float.maxScale(i : Int, n : Int) : Float = Math.max(0f, this - i * n.inverse())
 fun Float.divideScale(i : Int, n : Int) : Float = Math.min(n.inverse(), maxScale(i, n)) * n
 fun Float.scaleFactor() : Float = Math.floor(this / scDiv).toFloat()
 fun Float.mirrorValue(a : Int, b : Int) : Float = (1 - scaleFactor()) * a.inverse() + scaleFactor() * b.inverse()
@@ -32,35 +33,36 @@ fun Float.updateScale(dir : Float, a : Int, b : Int) : Float = mirrorValue(a, b)
 fun Canvas.drawTBSNode(i : Int, scale : Float, paint : Paint) {
     val w : Float = width.toFloat()
     val h : Float = height.toFloat()
-    val gap : Float = w / (nodes + 1)
+    val gap : Float = h / (nodes + 1)
     val size : Float = gap / sizeFactor
     val ballGap : Float = (2 * size) / (rows + 1)
-    val r = ballGap/4
+    val r = ballGap/3
     paint.color = color
     val sc1 : Float = scale.divideScale(0, 2)
     val sc2 : Float = scale.divideScale(1, 2)
     save()
-    translate(gap * (i + 1), h/2)
+    translate(w/2, gap * (i + 1))
     rotate(90f * sc2)
     translate(-size, -size)
     var currY : Float = 0f
-    for (j in 0..(rows - 1)) {
-        val sc : Float = sc1.divideScale(j, rows)
+    drawCircle(0f, currY, r, paint)
+    for (j in 1..rows) {
+        val sc : Float = sc1.divideScale(j-1, rows)
         if (sc == 0f) {
             break
         }
-        val sck1 : Float = sc.divideScale(0, 2)
-        val sck2 : Float = sc.divideScale(1, 2)
+        val sck1 : Float = sc.divideScale(0, movements)
+        val sck2 : Float = sc.divideScale(1, movements)
         var currX : Float = 0f
+        currY += ballGap * sck1
         for (t in 0..j) {
-            if (t == j) {
+            drawCircle(currX, currY, r, paint)
+            if (t == j-1) {
                 currX += ballGap * sck2
             } else {
                 currX += ballGap
             }
-            drawCircle(currX, currY, r, paint)
         }
-        currY += ballGap * sck1
     }
     restore()
 }
@@ -88,6 +90,7 @@ class TriangleBallsStepView(ctx : Context) : View(ctx) {
 
         fun update(cb : (Float) -> Unit) {
             scale += scale.updateScale(dir, rows * movements, 1)
+            Log.d("scale is ", "$scale")
             if (Math.abs(scale - prevScale) > 1) {
                 scale = prevScale + dir
                 dir = 0f
